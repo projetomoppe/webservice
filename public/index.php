@@ -585,7 +585,7 @@
 
 	$app->get('/get_insere/{id_dispositivo}/{valor_icos_fundo}/{valor_icos_superficie}/{valor_ultrassonico}/{latitude_sinal}/{latitude_inteiro}/{latitude_decimal}/{longitude_sinal}/{longitude_inteiro}/{longitude_decimal}/{elevacao}/{dia}/{mes}/{ano}/{hora}/{minuto}/{segundo}', function($request, $response, $args){
 		
-		header("Refresh: 5; url = /moppe-ws/public/index.php/get_dados");
+		header("Refresh: 5; url = /webservice/public/index.php/get_notificacao");
 
 		echo '
 		<!DOCTYPE html>
@@ -732,35 +732,35 @@
 			<title>MOPPE - Demonstração do Protótipo</title>
 			<style>
 				body{
-					font-size:20px;
+					font-size:16px;
 					background-color:#F2F2F2;
 					font-family:Arial, Helvetica, sans-serif;
 					color:#FFF;
 				} 
 				
 				.centraliza{
-					width:98%;
+					width:90%;
 					heigth:auto;
-					margin:1px auto 0 auto;
+					margin:20px auto 0 auto;
 					background-color:#666;
-					padding:10px;
+					padding:15px;
 					text-align:center;
 				} 
 
 				h1{
-					font-size:115%;
-					margin:0 0 1px
+					font-size:112.5%;
+					margin:0 0 20px
 				} 
 				
 				p{
 					font-size:100%;
-					margin:10px 0;
+					margin:5px 0;
 				} 
 				
 				#map{
-					width:100%;
-					height:600px;
-					margin:10px auto 0;
+					width:90%;
+					height:300px;
+					margin:30px auto 0;
 				}
 
 			</style>
