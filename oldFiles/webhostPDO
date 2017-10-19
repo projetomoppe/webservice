@@ -1,0 +1,2 @@
+return new PDO("mysql:host=localhost;dbname=id3002618_moppe", "id3002618_moppe", "moppe"); 
+/public/index.php/get_dados
