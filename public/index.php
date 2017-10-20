@@ -732,37 +732,36 @@
 -->
 			<style>
 				body{
-					font-size:16px;
+					font-size:20px;
 					background-color:#F2F2F2;
 					font-family:Arial, Helvetica, sans-serif;
 					color:#FFF;
 				} 
 				
 				.centraliza{
-					width:90%;
+					width:95%;
 					heigth:auto;
-					margin:20px auto 0 auto;
+					margin:10px auto 0 auto;
 					background-color:#666;
-					padding:15px;
+					padding:10px;
 					text-align:center;
 				} 
 
 				h1{
-					font-size:112.5%;
-					margin:0 0 20px
+					font-size:130%;
+					margin:0 0 10px
 				} 
 				
 				p{
 					font-size:100%;
-					margin:5px 0;
+					margin:10px 0;
 				} 
 				
 				#map{
-					width:90%;
-					height:300px;
-					margin:30px auto 0;
+					width:100%;
+					height:600px;
+					margin:10px auto 0;
 				}
-
 			</style>
 		</head>
 		<body>
@@ -770,7 +769,7 @@
 		';	
 
 		echo "
-		<h1>MOPPE - Demonstração do Protótipo</h1>
+		<h1>MOPPE - Dispositivo 1</h1>
 		
 		<p>ID do Dispositivo:
 		$row->id_dispositivo
@@ -785,14 +784,14 @@
 		</p>
 		";
 
-		echo '<p>Estado do Dispositivo:';
+		echo '<p>Estado:';
 		
 		if($nivel == "Normal")
-			echo '<span style="color:#3CB371"> NÍVEL NORMAL</span>';
+			echo '<span style="color:#3CB371"> NORMAL</span>';
 	  	if($nivel == "Interm.")
-		  	echo '<span style="color:#FFCC33"> NÍVEL DE ALERTA</span>';
+		  	echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
 	 	if($nivel == "Crítico")
-			echo '<span style="color:#FA8072"> NÍVEL DE EMERGÊNCIA</span>';
+			echo '<span style="color:#FA8072"> CRÍTICO (EMERGENCIAL)</span>';
 		
 		echo '</p>';	
 		
@@ -924,35 +923,35 @@
 -->
 			<style>
 				body{
-					font-size:16px;
+					font-size:20px;
 					background-color:#F2F2F2;
 					font-family:Arial, Helvetica, sans-serif;
 					color:#FFF;
 				} 
 				
 				.centraliza{
-					width:90%;
+					width:95%;
 					heigth:auto;
-					margin:20px auto 0 auto;
+					margin:10px auto 0 auto;
 					background-color:#666;
-					padding:15px;
+					padding:10px;
 					text-align:center;
 				} 
 
 				h1{
-					font-size:112.5%;
-					margin:0 0 20px
+					font-size:130%;
+					margin:0 0 10px
 				} 
 				
 				p{
 					font-size:100%;
-					margin:5px 0;
+					margin:10px 0;
 				} 
 				
 				#map{
-					width:90%;
-					height:300px;
-					margin:30px auto 0;
+					width:100%;
+					height:600px;
+					margin:10px auto 0;
 				}
 
 			</style>
@@ -962,7 +961,7 @@
 		';	
 
 		echo "
-		<h1>MOPPE - Demonstração do Protótipo</h1>
+		<h1>MOPPE - Dispositivo 2</h1>
 		
 		<p>ID do Dispositivo:
 		$row->id_dispositivo
@@ -977,16 +976,16 @@
 		</p>
 		";
 
-		echo '<p>Estado do Dispositivo:';
+		echo '<p>Estado:';
 		
 		if($nivel == "Normal")
-			echo '<span style="color:#3CB371"> NÍVEL NORMAL</span>';
-			if($nivel == "Interm.")
-				echo '<span style="color:#FFCC33"> NÍVEL DE ALERTA</span>';
-			if($nivel == "Crítico")
-			echo '<span style="color:#FA8072"> NÍVEL DE EMERGÊNCIA</span>';
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+	  	if($nivel == "Interm.")
+		  	echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+	 	if($nivel == "Crítico")
+			echo '<span style="color:#FA8072"> CRÍTICO (EMERGENCIAL)</span>';
 		
-		echo '</p>';	
+		echo '</p>';		
 		
 		echo "
 		<p>Sensor Ultrassônico - Leitura:
@@ -1127,4 +1126,38 @@
 	});
 
 	$app->run();
+/*	
+	<!--
+				body{
+					font-size:16px;
+					background-color:#F2F2F2;
+					font-family:Arial, Helvetica, sans-serif;
+					color:#FFF;
+				} 
+				
+				.centraliza{
+					width:90%;
+					heigth:auto;
+					margin:20px auto 0 auto;
+					background-color:#666;
+					padding:15px;
+					text-align:center;
+				} 
 
+				h1{
+					font-size:112.5%;
+					margin:0 0 20px
+				} 
+				
+				p{
+					font-size:100%;
+					margin:5px 0;
+				} 
+				
+				#map{
+					width:90%;
+					height:300px;
+					margin:30px auto 0;
+				}
+-->
+*/
