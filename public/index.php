@@ -13,7 +13,7 @@
 	require '../src/routes/dados.php';
 
 	function getConnection(){
-		return new PDO("mysql:host=localhost;dbname=moppe_leituras", "root", "root"); 
+		return new PDO("mysql:host=localhost;dbname=id3002618_moppe", "id3002618_moppe", "moppe");  
 	}
 
 	function sendMessage($message){
@@ -585,7 +585,7 @@
 
 	$app->get('/get_insere/{id_dispositivo}/{valor_icos_fundo}/{valor_icos_superficie}/{valor_ultrassonico}/{latitude_sinal}/{latitude_inteiro}/{latitude_decimal}/{longitude_sinal}/{longitude_inteiro}/{longitude_decimal}/{elevacao}/{dia}/{mes}/{ano}/{hora}/{minuto}/{segundo}', function($request, $response, $args){
 		
-		header("Refresh: 5; url = /webservice/public/index.php/get_notificacao");
+		header("Refresh: 5; url = /moppe-ws/public/index.php/get_notificacao");
 
 		echo '
 		<!DOCTYPE html>
@@ -719,17 +719,17 @@
 
 		echo '
 		<!DOCTYPE html lang="pt-br">
-		<meta charset="utf-8">
-		<meta http-equiv="refresh" content="60">
-		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
-		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
-		<meta name="author" content="Edson Boldrini">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Moppe - D1</title>
 		<html>
 		<head>
-			<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
-			<title>MOPPE - Demonstração do Protótipo</title>
+    		<meta charset="utf-8">
+    		<meta http-equiv="refresh" content="60">
+    		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+    		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+    		<meta name="author" content="Edson Boldrini">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>Moppe - Dispositivo 1</title>
+<!--		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+-->
 			<style>
 				body{
 					font-size:16px;
@@ -911,17 +911,17 @@
 
 		echo '
 		<!DOCTYPE html lang="pt-br">
-		<meta charset="utf-8">
-		<meta http-equiv="refresh" content="60">
-		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
-		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
-		<meta name="author" content="Edson Boldrini">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Moppe - D2</title>
 		<html>
 		<head>
-			<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
-			<title>MOPPE - Demonstração do Protótipo</title>
+    		<meta charset="utf-8">
+    		<meta http-equiv="refresh" content="60">
+    		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+    		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+    		<meta name="author" content="Edson Boldrini">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>Moppe - Dispositivo 2</title>
+<!--		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+-->
 			<style>
 				body{
 					font-size:16px;
@@ -1127,115 +1127,4 @@
 	});
 
 	$app->run();
-	/*
 
-	Function getLeituras($request, $response, $args){
-		echo "Moppe 2017 - Leituras<br><br>";
-
-//		$connection = new PDO("mysql:host=localhost;dbname=moppe_leituras", "root", "moppe"); 
-		$response = getConnection()->query("SELECT * FROM leituras");
-
-		if($response->execute()){	
-			if($response->rowCount() > 0){
-				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					echo "Id da leitura: ";
-					echo $row->id_leitura . " / ";
-					echo "Id do dispositivo: ";
-					echo $row->id_dispositivo . " / ";
-					echo "Lugar: ";
-					echo $row->nome_lugar . " / ";
-					echo "Latitude: ";
-					echo $row->latitude . " / ";
-					echo "Longitude: ";
-					echo $row->longitude . " / ";
-					echo "Altitude/Elevação: ";
-					echo $row->elevacao . " / ";
-					echo "Sensor icos do fundo: ";
-					echo $row->valor_icos_fundo . " / ";
-					echo "Sensor icos da superficie: ";
-					echo $row->valor_icos_superficie . " / ";
-					echo "Sensor ultrassônico: ";
-					echo $row->valor_ultrassonico . " / ";
-					echo "Data e hora: ";
-					echo $row->data_hora . "<br>";
-				}
-			}
-		}
-	}
-
-	Function addLeitura($request, $response, $args){
-		$id_leitura = 				$request->getParam('id_leitura');
-		$id_dispositivo = 			$request->getParam('id_dispositivo');
-		$valor_icos_fundo = 		$request->getParam('valor_icos_fundo');
-		$valor_icos_superficie = 	$request->getParam('valor_icos_superficie');
-		$valor_ultrassonico = 		$request->getParam('valor_ultrassonico');
-		$nome_lugar = 				$request->getParam('nome_lugar');
-		$latitude = 				$request->getParam('latitude');
-		$longitude = 				$request->getParam('longitude');
-		$elevacao = 				$request->getParam('elevacao');
-		$data_hora = 				$request->getParam('data_hora');
-
-		$sql = 'INSERT INTO leituras (id_leitura, id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, nome_lugar, latitude, longitude, elevacao, data_hora) VALUES (:id_leitura,:id_dispositivo,:valor_icos_fundo, :valor_icos_superficie,:valor_ultrassonico,:nome_lugar,:latitude,:longitude,:elevacao,:data_hora)';
-
-		$connection = getConnection();
-		
-		$stmt = $connection->prepare($sql);
-
-		$stmt->bindParam(":id_leitura",				$id_leitura);
-		$stmt->bindParam(":id_dispositivo",			$id_dispositivo);
-		$stmt->bindParam(":valor_icos_fundo",		$valor_icos_fundo);
-		$stmt->bindParam(":valor_icos_superficie",	$valor_icos_superficie);
-		$stmt->bindParam(":valor_ultrassonico",		$valor_ultrassonico);
-		$stmt->bindParam(":nome_lugar",				$nome_lugar);
-		$stmt->bindParam(":latitude",				$latitude);
-		$stmt->bindParam(":longitude",				$longitude);
-		$stmt->bindParam(":elevacao",				$elevacao);
-		$stmt->bindParam(":data_hora",				$data_hora);
-
-		$stmt->execute();
-
-		echo 'Leitura adicionada!';
-	}
-	*/
-
-	/*
-	Function addLeitura(){
-		$request = \Slim\Slim::getInstance()->request();
-		$leitura = json_decode($request->getBody());
-		$sql = "INSERT INTO `leituras` (`id_leitura`, `id_dispositivo`, `valor_icos_fundo`, `valor_icos_superficie`, `valor_ultrassonico`, `nome_lugar`, `latitude`, `longitude`, `elevacao`, `data_hora`) VALUES (':id_leitura', ':id_dispositivo', ':valor_icos_fundo', ':valor_icos_superficie', ':valor_ultrassonico', ':nome_lugar', ':latitude', ':longitude', ':elevacao', ':data_hora')";
-		
-		$connection = getConnection();
-		
-		$stmt = $connection->prepare($sql);
-		$stmt->bindParam("id_leitura",$leitura->$id_leitura);
-		$stmt->bindParam("id_dispositivo",$leitura->$id_dispositivo);
-		$stmt->bindParam("valor_icos_fundo",$leitura->$valor_icos_fundo);
-		$stmt->bindParam("valor_icos_superficie",$leitura->$valor_icos_superficie);
-		$stmt->bindParam("valor_ultrassonico",$leitura->$valor_ultrassonico);
-		$stmt->bindParam("nome_lugar",$leitura->$nome_lugar);
-		$stmt->bindParam("latitude",$leitura->$latitude);
-		$stmt->bindParam("longitude",$leitura->$longitude);
-		$stmt->bindParam("elevacao",$leitura->$elevacao);
-		$stmt->bindParam("data_hora",$leitura->$data_hora);
-
-		$stmt->execute();
-		$leitura->id = $connection->lastInsertId();
-		echo json_encode($leitura);
-	}
-	*/
-
-
-	
-
-	/*
-
-	$app->get('/leitura_sensor', "leituraSensor");
-
-	Function leituraSensor(){
-		$a = [];
-		$a[] = ["nome"=> "Pedro", "idade"=> "23333"];
-		$a[] = ["nome"=> "Edson", "idade"=> "4444"];
-			
-		echo json_encode($a);
-	}
-	*/
