@@ -739,7 +739,7 @@
 				} 
 				
 				.centraliza{
-					width:95%;
+					width:94%;
 					heigth:auto;
 					margin:10px auto 0 auto;
 					background-color:#666;
@@ -930,7 +930,7 @@
 				} 
 				
 				.centraliza{
-					width:95%;
+					width:94%;
 					heigth:auto;
 					margin:10px auto 0 auto;
 					background-color:#666;
