@@ -13,7 +13,7 @@
 	require '../src/routes/dados.php';
 
 	function getConnection(){
-		return new PDO("mysql:host=localhost;dbname=moppe_leituras", "root", "root"); 
+		return new PDO("mysql:host=localhost;dbname=id3002618_moppe", "id3002618_moppe", "moppe");  
 	}
 
 	function sendMessage($message){
@@ -49,9 +49,11 @@
 		return $response;
 	}
 
-	$app->get('/', function ($request, $response, $args) {
-	
-	echo '
+	$app->get('/get_home', function ($request, $response, $args) {
+
+		header("Refresh: 5");
+				
+		echo '
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -61,169 +63,546 @@
 			<meta name="author" content="Edson Boldrini">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>Moppe - Webservice</title>
-			<link rel="stylesheet" type="text/css" href="../style.css">
 		</head>
-		<body>';
+		<body>
+		';
 
-	echo '
+		echo '
 		<h2>Moppe - Webservice</h2>
 		<h3>Digite:</h3> 
 		<ul style="list-style-type:disc">
 			<li>/get_dados na url para acessar os dados do banco.</li> <br>
 			<li>/get_insere/{id_dispositivo}/{valor_icos_fundo}/{valor_icos_superficie}/{valor_ultrassonico}/{latitude_sinal}/{latitude_inteiro}/{latitude_decimal}/{longitude_sinal}/{longitude_inteiro}/{longitude_decimal}/{elevacao}/{dia}/{mes}/{ano}/{hora}/{minuto}/{segundo} na url para inserir uma nova leitura no banco. Lembre de trocar os campos com {} para as variáveis que vc quer.</li>
 			<ul>
-				<li> ex: /get_insere/1/2/3/4/5/6/7/8/9/1/11/12/0/14/15/16/50/10/10/2017/22/22/22. </li>
+				<li> ex: get_insere/1/0/1/30.578/1/20/15156156/1/40/4898489/25/2017/09/22/09/14/12 </li>
 				<li> gera: <br>
 				id_dispositivo: 1 <br>
-				temp_interna: 2 <br>
-				temp_externa: 3 <br>
-				acx: 4 <br>
-				acy: 5 <br>
-				acz: 6 <br>
-				gyx: 7 <br>
-				gyy: 8 <br>
-				gyz: 9 <br>
-				latitude: -11.12 <br>
-				longitude: 14.15 <br>
-				elevacao: 16 <br>
-				velocidade: 50 <br>
-				data_hora: 2017-10-10 22:22:22 </li>
+				valor_icos_fundo: 0 <br>
+				valor_icos_superficie: 1 <br>
+				valor_ultrassonico: 30.578 <br>
+				latitude: -20.15156156 <br>
+				longitude: -40.4898489 <br>
+				elevacao: 25 <br>
+				data_hora: 2017-09-22 09:14:12 </li> 
 			</ul>	
-		</ul>';
-		
-	echo '
+		</ul>
+		';
+			
+		echo '
 		<br>
 		</body>
-		</html>';
+		</html>
+		';
 
 	});
+	
 
-	$app->get('/get_dados', function($request, $response, $args){
-		
+	$app->get('/get_notificacao', function($request, $response, $args){
+
 		header("Refresh: 5");
+		
+		session_start();		
+		
+		echo '
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="UTF-8">
+			<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+			<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+			<meta name="author" content="Edson Boldrini">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Moppe - Leituras</title>
+			<style>
+			table, td, th {
+				border: 1px solid black;
+			}
 
-		echo '<!DOCTYPE html>
-			<html>
-			<head>
-				<meta charset="UTF-8">
-				<meta name="description" content="API que transmite dados sobre os niveis de um rio">
-				<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
-				<meta name="author" content="Edson Boldrini">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Moppe - Leituras</title>
-				<link rel="stylesheet" type="text/css" href="../style.css">
-		  	</head>
-			<body>';
+			table {
+				width: 50%;
+			}
+			
+			th {
+				text-align: center;
+			}
+
+			td {
+				text-align: center;
+			}
+			</style>
+			</head>
+		<body>
+		';
 		
 		echo "<h2>Moppe - Leituras</h2>";
-
-		echo "<h3>Dispositivo 1:</h3>";
-
-		$response = getConnection();
 		
-		$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo = 1 ORDER BY id_leitura desc limit 10");
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
 
 		echo '
-			<table>
-			<tr>
-				<th>id_leitura</th>
-				<th>Id_Dispositivo</th> 
-				<th>Icos Fundo</th>
-				<th>Icos Superfície</th>
-				<th>Ultrassonico</th>
-				<th>Latitude</th>
-				<th>Longitude</th>
-				<th>Elevação</th>
-				<th>Data/Hora</th>
-			</tr>';
+		<h3>Dispositivo 1:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassonico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
 
 		if($response->execute()){	
 			if($response->rowCount() > 0){
 				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					echo "<tr>
-							<td>$row->id_leitura</td>
-							<td>$row->id_dispositivo</td> 
-							<td>$row->valor_icos_fundo</td>
-							<td>$row->valor_icos_superficie</td>
-							<td>$row->valor_ultrassonico</td>
-							<td>$row->latitude</td>
-							<td>$row->longitude</td>
-							<td>$row->elevacao</td>
-							<td>$row->data_hora</td>
-				  		 </tr>";	   
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$row->latitude</td>
+						<td>$row->longitude</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						   
 				}
 			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
 		}
 
-		echo "<h3>Dispositivo 2:</h3>";
+		echo '
+		</table>
+		<br>
+		';
 
-		$response = getConnection();
+		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		$nivelAnterior1 = $_SESSION['nivelAnterior1'];
 		
-		$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo = 2 ORDER BY id_leitura desc limit 10");
+		if ($contN>7 && $nivelAnterior1!="n"){
+			$nivelAnterior1 = "n";
+			$response = sendMessage('Dispositivo 1 - Nível normal');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
 
-		echo "
-			<table>
-			<tr>
-				<th>id_leitura</th>
-				<th>Id_Dispositivo</th> 
-				<th>Icos Fundo</th>
-				<th>Icos Superfície</th>
-				<th>Ultrassonico</th>
-				<th>Latitude</th>
-				<th>Longitude</th>
-				<th>Elevação</th>
-				<th>Data/Hora</th>
-			</tr>";
+		if ($contI>7 && $nivelAnterior1!="i"){
+			$nivelAnterior1 = "i";
+			$response = sendMessage('Dispositivo 1 - Nível internediário');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contC>7 && $nivelAnterior1!="c"){
+			$nivelAnterior1 = "c";
+			$response = sendMessage('Dispositivo 1 - Nível crítico');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		$_SESSION['nivelAnterior1'] = $nivelAnterior1;
+
+		//Começo do código para segundo dispositivo
+
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+		
+		echo '
+		<h3>Dispositivo 2:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassonico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
 
 		if($response->execute()){	
 			if($response->rowCount() > 0){
 				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					echo "<tr>
-							<td>$row->id_leitura</td>
-							<td>$row->id_dispositivo</td> 
-							<td>$row->valor_icos_fundo</td>
-							<td>$row->valor_icos_superficie</td>
-							<td>$row->valor_ultrassonico</td>
-							<td>$row->latitude</td>
-							<td>$row->longitude</td>
-							<td>$row->elevacao</td>
-							<td>$row->data_hora</td>
-				  		 </tr>";	   
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$row->latitude</td>
+						<td>$row->longitude</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						
 				}
 			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		echo '
+		</table>
+		<br>
+		';
+ 
+		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		$nivelAnterior2 = $_SESSION['nivelAnterior2'];
+
+		if ($contN>7 && $nivelAnterior2!="n"){
+			$nivelAnterior2 = "n";
+			$response = sendMessage('Dispositivo 2 - Nível normal');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contI>7 && $nivelAnterior2!="i"){
+			$nivelAnterior2 = "i";
+			$response = sendMessage('Dispositivo 2 - Nível internediário');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contC>7 && $nivelAnterior2!="c"){
+			$nivelAnterior2 = "c";
+			$response = sendMessage('Dispositivo 2 - Nível crítico');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		$_SESSION['nivelAnterior2'] = $nivelAnterior2;
+
+		echo '
+		<br>
+		</body>
+		</html>
+		';
+
+		
+	});
+
+	$app->get('/get_historico', function($request, $response, $args){
+
+		header("Refresh: 5");
+		
+		session_start();		
+		
+		echo '
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="UTF-8">
+			<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+			<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+			<meta name="author" content="Edson Boldrini">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Moppe - Leituras</title>
+			<style>
+			table, td, th {
+				border: 1px solid black;
+			}
+
+			table {
+				width: 50%;
+			}
+			
+			th {
+				text-align: center;
+			}
+
+			td {
+				text-align: center;
+			}
+			</style>
+			</head>
+		<body>
+		';
+		
+		echo "<h2>Moppe - Leituras</h2>";
+		
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+
+		echo '
+		<h3>Dispositivo 1:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassonico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$row->latitude</td>
+						<td>$row->longitude</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						   
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		echo '
+		</table>
+		<br>
+		';
+
+		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		//Começo do código para segundo dispositivo
+
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
 		}
 		
 		echo '
-			<br>
-			</body>
-			</html>';
+		<h3>Dispositivo 2:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassonico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$row->latitude</td>
+						<td>$row->longitude</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		echo '
+		</table>
+		<br>
+		';
+ 
+		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		echo '
+		<br>
+		</body>
+		</html>
+		';
+
 		
-		/*
-		$response = sendMessage('Dados');
-		$return["allresponses"] = $response;
-		$return = json_encode( $return);
-		
-		print("\n\nJSON received:\n");
-		print($return);
-		print("\n");
-		*/
 	});
 
 	$app->get('/get_insere/{id_dispositivo}/{valor_icos_fundo}/{valor_icos_superficie}/{valor_ultrassonico}/{latitude_sinal}/{latitude_inteiro}/{latitude_decimal}/{longitude_sinal}/{longitude_inteiro}/{longitude_decimal}/{elevacao}/{dia}/{mes}/{ano}/{hora}/{minuto}/{segundo}', function($request, $response, $args){
+		
+		header("Refresh: 5; url = /moppe-ws/public/index.php/get_notificacao");
 
 		echo '
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<meta charset="UTF-8">
-				<meta name="description" content="API que transmite dados sobre os niveis de um rio">
-				<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
-				<meta name="author" content="Edson Boldrini">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Moppe - Inserção</title>
-				<link rel="stylesheet" type="text/css" href="../style.css">
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="UTF-8">
+			<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+			<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+			<meta name="author" content="Edson Boldrini">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Moppe - Insere</title>
+			<style>
+
+			</style>
 			</head>
-			<body>';
+		<body>
+		';
 
 		$id_dispositivo = 			$request->getAttribute('id_dispositivo');
 		$valor_icos_fundo = 		$request->getAttribute('valor_icos_fundo');
@@ -259,38 +638,432 @@
 
 		$data_hora = "$dia-$mes-$ano $hora:$minuto:$segundo";
 
-		echo '<h2>Nova leitura:</h2>';
+		if ($valor_icos_fundo == 1 && $valor_icos_superficie == 0){
+			$nivel = "Normal";
+		}
 
-		echo "id_dispositivo: $id_dispositivo<br>";
-		echo "valor_icos_fundo: $valor_icos_fundo<br>";
-		echo "valor_icos_superficie: $valor_icos_superficie<br>";
-		echo "valor_ultrassonico$valor_ultrassonico<br>";
-		echo "latitude: $latitude<br>";
-		echo "longitude: $longitude<br>";
-		echo "elevacao: $elevacao<br>";
-		echo "data_hora: $data_hora<br><br>";
+		if ($valor_icos_fundo == 0 && $valor_icos_superficie == 0){
+			$nivel = "Intermediário";
+		}
 
-		
-		echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');";
-		
-		$response = getConnection();
-		
-		$response = $response->query("INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');");
+		if ($valor_icos_fundo == 0 && $valor_icos_superficie == 1){
+			$nivel = "Crítico";
+		}
 
-		echo '<br>';
+		echo "<h2>Nova leitura:</h2>";
+		echo "Id_dispositivo: $id_dispositivo<br>";
+		echo "Valor_icos_fundo: $valor_icos_fundo<br>";
+		echo "Valor_icos_superficie: $valor_icos_superficie<br>";
+		echo "Valor_ultrassonico: $valor_ultrassonico<br>";
+		echo "Latitude: $latitude<br>";
+		echo "Longitude: $longitude<br>";
+		echo "Elevacao: $elevacao<br>";
+		echo "Data_hora: $data_hora<br>";
+		echo "Nível: $nivel<br><br>";
 
-		$response = sendMessage('Nova leitura adicionada');
-		$return["allresponses"] = $response;
-		$return = json_encode( $return);
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');");	
 		
-		print("\n\nJSON received:\n");
-		print($return);
-		print("\n");
+			echo 'Código SQL:<br>';
+			echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');";	
+			echo '<br>Leitura adicionada!<br>';	
+		}	
+		catch(PDOException $e){
+			echo '<br>Leitura não adicionada!<br>';	 
+		}
+
+		echo '
+		<br>
+		</body>
+		</html>';
+
 	});
 
-	$app->run();
+	$app->get('/get_d1', function($request, $response, $args){
 
-	/*
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 1");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				$row = $response->fetch(PDO::FETCH_OBJ);
+				if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+					$nivel = "Normal";
+				}
+
+				if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+					$nivel = "Interm.";
+				}
+
+				if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+					$nivel = "Crítico";
+				}
+			}
+			else {
+				echo "<br>Sem leituras para esse dispositivo<br>";
+			}
+		}else{
+			echo "<br>Erro SQL<br>";
+		}
+		
+		list ($data, $tempo) = explode(' ', $row->data_hora);
+		list ($ano, $mes, $dia) = explode('-', $data);
+		list ($hora, $minuto, $segundo) = explode(':', $tempo);
+
+		echo '
+		<!DOCTYPE html lang="pt-br">
+		<html>
+		<head>
+    		<meta charset="utf-8">
+    		<meta http-equiv="refresh" content="60">
+    		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+    		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+    		<meta name="author" content="Edson Boldrini">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>Moppe - Dispositivo 1</title>
+<!--		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+-->
+			<style>
+				body{
+					font-size:20px;
+					background-color:#F2F2F2;
+					font-family:Arial, Helvetica, sans-serif;
+					color:#FFF;
+				} 
+				
+				.centraliza{
+					width:94%;
+					heigth:auto;
+					margin:10px auto 0 auto;
+					background-color:#666;
+					padding:10px;
+					text-align:center;
+				} 
+
+				h1{
+					font-size:130%;
+					margin:0 0 10px
+				} 
+				
+				p{
+					font-size:100%;
+					margin:10px 0;
+				} 
+				
+				#map{
+					width:100%;
+					height:600px;
+					margin:10px auto 0;
+				}
+			</style>
+		</head>
+		<body>
+		<div class="centraliza">
+		';	
+
+		echo "
+		<h1>MOPPE - Dispositivo 1</h1>
+		
+		<p>ID do Dispositivo:
+		$row->id_dispositivo
+		</p>
+		
+		<p>Sensor ICOS Fundo - Leitura:
+		$row->valor_icos_fundo
+		</p>
+		
+		<p>Sensor ICOS Superefície - Leitura:
+		$row->valor_icos_superficie
+		</p>
+		";
+
+		echo '<p>Estado:';
+		
+		if($nivel == "Normal")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+	  	if($nivel == "Interm.")
+		  	echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+	 	if($nivel == "Crítico")
+			echo '<span style="color:#FA8072"> CRÍTICO (EMERGÊNCIA)</span>';
+		
+		echo '</p>';	
+		
+		echo "
+		<p>Sensor Ultrassônico:
+		$row->valor_ultrassonico cm
+		</p>
+
+		<p>GPS Latitude:
+		$row->latitude
+		</p>
+
+		<p>GPS Latitude:
+		$row->longitude
+		</p>
+
+		<p>GPS Elevação:
+		$row->elevacao
+		</p>
+		
+		<p>GPS Data e hora:
+		$dia/$mes/$ano
+		$hora:$minuto:$segundo
+		</p>
+		";
+
+		echo '
+		<div id="map"></div>
+		<script>
+		  function initMap() {
+		';
+		
+		echo "
+			var uluru = {lat: $row->latitude, lng: $row->longitude};";
+		
+		echo '
+			var map = new google.maps.Map(document.getElementById("map"), {
+			  zoom: 16,
+			  center: uluru
+			});
+		';
+		
+		if ($nivel == "Normal"){
+			echo '
+			var image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png";
+			var marker = new google.maps.Marker({position: uluru,map: map,icon: image});
+		  }
+		';			
+		}
+
+		if ($nivel == "Interm."){
+			echo '
+			var image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/yellow-dot.png";
+			var marker = new google.maps.Marker({position: uluru,map: map,icon: image});
+		  }
+		';			
+		}
+
+		if ($nivel == "Crítico"){
+			echo '
+			var marker = new google.maps.Marker({
+			  position: uluru,
+			  map: map
+			});
+		  }
+		';			
+		}
+		
+		echo '
+		</script>
+
+		<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpWk9lPcJbrtpXwaL93gHuCxT0T9mT_Ag&callback=initMap">
+		</script>
+		
+		</body>
+		</html>';
+	
+	});
+
+	$app->get('/get_d2', function($request, $response, $args){
+		
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 1");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				$row = $response->fetch(PDO::FETCH_OBJ);
+				if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+					$nivel = "Normal";
+				}
+
+				if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+					$nivel = "Interm.";
+				}
+
+				if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+					$nivel = "Crítico";
+				}
+			}
+			else {
+				echo "<br>Sem leituras para esse dispositivo<br>";
+			}
+		}else{
+			echo "<br>Erro SQL<br>";
+		}
+		
+		list ($data, $tempo) = explode(' ', $row->data_hora);
+		list ($ano, $mes, $dia) = explode('-', $data);
+		list ($hora, $minuto, $segundo) = explode(':', $tempo);
+
+		echo '
+		<!DOCTYPE html lang="pt-br">
+		<html>
+		<head>
+    		<meta charset="utf-8">
+    		<meta http-equiv="refresh" content="60">
+    		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+    		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+    		<meta name="author" content="Edson Boldrini">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>Moppe - Dispositivo 2</title>
+<!--		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+-->
+			<style>
+				body{
+					font-size:20px;
+					background-color:#F2F2F2;
+					font-family:Arial, Helvetica, sans-serif;
+					color:#FFF;
+				} 
+				
+				.centraliza{
+					width:94%;
+					heigth:auto;
+					margin:10px auto 0 auto;
+					background-color:#666;
+					padding:10px;
+					text-align:center;
+				} 
+
+				h1{
+					font-size:130%;
+					margin:0 0 10px
+				} 
+				
+				p{
+					font-size:100%;
+					margin:10px 0;
+				} 
+				
+				#map{
+					width:100%;
+					height:600px;
+					margin:10px auto 0;
+				}
+
+			</style>
+		</head>
+		<body>
+		<div class="centraliza">
+		';	
+
+		echo "
+		<h1>MOPPE - Dispositivo 2</h1>
+		
+		<p>ID do Dispositivo:
+		$row->id_dispositivo
+		</p>
+		
+		<p>Sensor ICOS Fundo - Leitura:
+		$row->valor_icos_fundo
+		</p>
+		
+		<p>Sensor ICOS Superefície - Leitura:
+		$row->valor_icos_superficie
+		</p>
+		";
+
+		echo '<p>Estado:';
+		
+		if($nivel == "Normal")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+	  	if($nivel == "Interm.")
+		  	echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+	 	if($nivel == "Crítico")
+			echo '<span style="color:#FA8072"> CRÍTICO (EMERGÊNCIA)</span>';
+		
+		echo '</p>';		
+		
+		echo "
+		<p>Sensor Ultrassônico:
+		$row->valor_ultrassonico cm
+		</p>
+
+		<p>GPS Latitude:
+		$row->latitude
+		</p>
+
+		<p>GPS Latitude:
+		$row->longitude
+		</p>
+
+		<p>GPS Elevação:
+		$row->elevacao
+		</p>
+		
+		<p>GPS Data e hora:
+		$dia/$mes/$ano
+		$hora:$minuto:$segundo
+		</p>
+		";
+
+		echo '
+		<div id="map"></div>
+		<script>
+			function initMap() {
+		';
+		
+		echo "
+			var uluru = {lat: $row->latitude, lng: $row->longitude};";
+		
+		echo '
+			var map = new google.maps.Map(document.getElementById("map"), {
+				zoom: 16,
+				center: uluru
+			});
+		';
+		
+		if ($nivel == "Normal"){
+			echo '
+			var image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png";
+			var marker = new google.maps.Marker({position: uluru,map: map,icon: image});
+			}
+		';			
+		}
+
+		if ($nivel == "Interm."){
+			echo '
+			var image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/yellow-dot.png";
+			var marker = new google.maps.Marker({position: uluru,map: map,icon: image});
+			}
+		';			
+		}
+
+		if ($nivel == "Crítico"){
+			echo '
+			var marker = new google.maps.Marker({
+				position: uluru,
+				map: map
+			});
+			}
+		';			
+		}
+		
+		echo '
+		</script>
+
+		<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpWk9lPcJbrtpXwaL93gHuCxT0T9mT_Ag&callback=initMap">
+		</script>
+		
+		</body>
+		</html>';
+
+	});
+
 	$app->post('/post_insere', function($request, $response, $args){
 		$id_dispositivo = 			$request->getParam('id_dispositivo');
 		$valor_icos_fundo = 		$request->getParam('valor_icos_fundo');
@@ -344,121 +1117,47 @@
 
 			$stmt->execute();
 
-			echo 'Leitura adicionada!';	
+			echo '<br>Leitura adicionada!<br>';	
 		}
 		catch(PDOException $e){
-			echo 'Leitura não adicionada!';	 
+			echo '<br>Leitura não adicionada!<br>';	 
 		}
 
 	});
 
-	Function getLeituras($request, $response, $args){
-		echo "Moppe 2017 - Leituras<br><br>";
+	$app->run();
+/*	
+	<!--
+				body{
+					font-size:16px;
+					background-color:#F2F2F2;
+					font-family:Arial, Helvetica, sans-serif;
+					color:#FFF;
+				} 
+				
+				.centraliza{
+					width:90%;
+					heigth:auto;
+					margin:20px auto 0 auto;
+					background-color:#666;
+					padding:15px;
+					text-align:center;
+				} 
 
-//		$connection = new PDO("mysql:host=localhost;dbname=moppe_leituras", "root", "moppe"); 
-		$response = getConnection()->query("SELECT * FROM leituras");
-
-		if($response->execute()){	
-			if($response->rowCount() > 0){
-				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					echo "Id da leitura: ";
-					echo $row->id_leitura . " / ";
-					echo "Id do dispositivo: ";
-					echo $row->id_dispositivo . " / ";
-					echo "Lugar: ";
-					echo $row->nome_lugar . " / ";
-					echo "Latitude: ";
-					echo $row->latitude . " / ";
-					echo "Longitude: ";
-					echo $row->longitude . " / ";
-					echo "Altitude/Elevação: ";
-					echo $row->elevacao . " / ";
-					echo "Sensor icos do fundo: ";
-					echo $row->valor_icos_fundo . " / ";
-					echo "Sensor icos da superficie: ";
-					echo $row->valor_icos_superficie . " / ";
-					echo "Sensor ultrassônico: ";
-					echo $row->valor_ultrassonico . " / ";
-					echo "Data e hora: ";
-					echo $row->data_hora . "<br>";
+				h1{
+					font-size:112.5%;
+					margin:0 0 20px
+				} 
+				
+				p{
+					font-size:100%;
+					margin:5px 0;
+				} 
+				
+				#map{
+					width:90%;
+					height:300px;
+					margin:30px auto 0;
 				}
-			}
-		}
-	}
-
-	Function addLeitura($request, $response, $args){
-		$id_leitura = 				$request->getParam('id_leitura');
-		$id_dispositivo = 			$request->getParam('id_dispositivo');
-		$valor_icos_fundo = 		$request->getParam('valor_icos_fundo');
-		$valor_icos_superficie = 	$request->getParam('valor_icos_superficie');
-		$valor_ultrassonico = 		$request->getParam('valor_ultrassonico');
-		$nome_lugar = 				$request->getParam('nome_lugar');
-		$latitude = 				$request->getParam('latitude');
-		$longitude = 				$request->getParam('longitude');
-		$elevacao = 				$request->getParam('elevacao');
-		$data_hora = 				$request->getParam('data_hora');
-
-		$sql = 'INSERT INTO leituras (id_leitura, id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, nome_lugar, latitude, longitude, elevacao, data_hora) VALUES (:id_leitura,:id_dispositivo,:valor_icos_fundo, :valor_icos_superficie,:valor_ultrassonico,:nome_lugar,:latitude,:longitude,:elevacao,:data_hora)';
-
-		$connection = getConnection();
-		
-		$stmt = $connection->prepare($sql);
-
-		$stmt->bindParam(":id_leitura",				$id_leitura);
-		$stmt->bindParam(":id_dispositivo",			$id_dispositivo);
-		$stmt->bindParam(":valor_icos_fundo",		$valor_icos_fundo);
-		$stmt->bindParam(":valor_icos_superficie",	$valor_icos_superficie);
-		$stmt->bindParam(":valor_ultrassonico",		$valor_ultrassonico);
-		$stmt->bindParam(":nome_lugar",				$nome_lugar);
-		$stmt->bindParam(":latitude",				$latitude);
-		$stmt->bindParam(":longitude",				$longitude);
-		$stmt->bindParam(":elevacao",				$elevacao);
-		$stmt->bindParam(":data_hora",				$data_hora);
-
-		$stmt->execute();
-
-		echo 'Leitura adicionada!';
-	}
-	*/
-
-	/*
-	Function addLeitura(){
-		$request = \Slim\Slim::getInstance()->request();
-		$leitura = json_decode($request->getBody());
-		$sql = "INSERT INTO `leituras` (`id_leitura`, `id_dispositivo`, `valor_icos_fundo`, `valor_icos_superficie`, `valor_ultrassonico`, `nome_lugar`, `latitude`, `longitude`, `elevacao`, `data_hora`) VALUES (':id_leitura', ':id_dispositivo', ':valor_icos_fundo', ':valor_icos_superficie', ':valor_ultrassonico', ':nome_lugar', ':latitude', ':longitude', ':elevacao', ':data_hora')";
-		
-		$connection = getConnection();
-		
-		$stmt = $connection->prepare($sql);
-		$stmt->bindParam("id_leitura",$leitura->$id_leitura);
-		$stmt->bindParam("id_dispositivo",$leitura->$id_dispositivo);
-		$stmt->bindParam("valor_icos_fundo",$leitura->$valor_icos_fundo);
-		$stmt->bindParam("valor_icos_superficie",$leitura->$valor_icos_superficie);
-		$stmt->bindParam("valor_ultrassonico",$leitura->$valor_ultrassonico);
-		$stmt->bindParam("nome_lugar",$leitura->$nome_lugar);
-		$stmt->bindParam("latitude",$leitura->$latitude);
-		$stmt->bindParam("longitude",$leitura->$longitude);
-		$stmt->bindParam("elevacao",$leitura->$elevacao);
-		$stmt->bindParam("data_hora",$leitura->$data_hora);
-
-		$stmt->execute();
-		$leitura->id = $connection->lastInsertId();
-		echo json_encode($leitura);
-	}
-	*/
-
-
-	
-
-	/*
-
-	$app->get('/leitura_sensor', "leituraSensor");
-
-	Function leituraSensor(){
-		$a = [];
-		$a[] = ["nome"=> "Pedro", "idade"=> "23333"];
-		$a[] = ["nome"=> "Edson", "idade"=> "4444"];
-			
-		echo json_encode($a);
-	}
-	*/
+-->
+*/

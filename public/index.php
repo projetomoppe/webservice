@@ -1064,6 +1064,241 @@
 
 	});
 
+	$app->get('/get_estado', function($request, $response, $args){
+	    
+	    try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					  
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		//echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		if ($contN>7){
+			$nivelAnterior1 = "n";
+		}
+
+		if ($contI>7){
+			$nivelAnterior1 = "i";
+		}
+
+		if ($contC>7){
+			$nivelAnterior1 = "c";
+		}
+
+		//Começo do código para segundo dispositivo
+
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+		
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+									
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		//echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+		
+		if ($contN>7){
+			$nivelAnterior2 = "n";
+		}
+
+		if ($contI>7){
+			$nivelAnterior2 = "i";
+		}
+
+		if ($contC>7){
+			$nivelAnterior2 = "c";
+		}
+	    
+		echo '
+		<!DOCTYPE html lang="pt-br">
+		<html>
+		<head>
+    		<meta charset="utf-8">
+    		<meta http-equiv="refresh" content="60">
+    		<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+    		<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+    		<meta name="author" content="Edson Boldrini">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>Moppe - Estados</title>
+<!--		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+-->
+			<style>
+				body{
+					font-size:20px;
+					background-color:#F2F2F2;
+					font-family:Arial, Helvetica, sans-serif;
+					color:#FFF;
+				} 
+				
+				.centraliza{
+					width:95%;
+					heigth:auto;
+					margin:10px auto 0 auto;
+					background-color:#666;
+					padding:10px;
+					text-align:center;
+				} 
+
+				h1{
+					font-size:130%;
+					margin:0 0 10px
+				} 
+				
+				p{
+					font-size:100%;
+					margin:10px 0;
+				} 
+				
+				#map{
+					width:100%;
+					height:600px;
+					margin:10px auto 0;
+				}
+
+			</style>
+		</head>
+		<body>
+		<div class="centraliza">
+		';	
+		
+		echo "
+		<h1>MOPPE - Estados</h1>
+		";
+		
+		echo "
+		<p>MOPPE - Dispositivo 1:<br>
+		";
+
+		if($nivelAnterior1 == "n")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+	  	if($nivelAnterior1 == "i")
+		  	echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+	 	if($nivelAnterior1 == "c")
+			echo '<span style="color:#FA8072"> CRÍTICO (EMERGENCIAL)</span>';
+		
+		echo "
+		</p>
+		";
+
+		echo "
+		<p>MOPPE - Dispositivo 2:<br>
+		";
+
+		if($nivelAnterior2 == "n")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+		if($nivelAnterior2 == "i")
+			echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+		if($nivelAnterior2 == "c")
+			echo '<span style="color:#FA8072"> CRÍTICO (EMERGENCIAL)</span>';
+
+		echo "
+		</p>
+		";
+
+		echo "
+		<br>
+		<p><b>MOPPE - Estado geral:</b><br>
+		";
+
+		if($nivelAnterior1 == "n" && $nivelAnterior2 =="n")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+		if($nivelAnterior1 == "n" && $nivelAnterior2 =="i")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+		if($nivelAnterior1 == "i" && $nivelAnterior2 =="n")
+			echo '<span style="color:#3CB371"> NORMAL</span>';
+
+		if($nivelAnterior1 == "i" && $nivelAnterior2 =="i")
+			echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+
+		if($nivelAnterior1 == "i" && $nivelAnterior2 =="c")
+			echo '<span style="color:#FFCC33"> FIQUE LIGADO! NÍVEL ESTÁ ALTO</span>';
+		if($nivelAnterior1 == "c" && $nivelAnterior2 =="i")
+			echo '<span style="color:#FFCC33"> FIQUE LIGADO! NÍVEL ESTÁ ALTO</span>';
+		
+		if($nivelAnterior1 == "c" && $nivelAnterior2 =="c")
+			echo '<span style="color:#FA8072"> SAIA JÁ DA SUA CASA! O NÍVEL ESTÁ CRÍTICO!</span>';
+
+		echo "
+		</p>
+		";
+	
+
+		echo'
+		</body>
+		</html>
+		';
+
+		
+	});
+
+	$app->run();
+
+	/*	
 	$app->post('/post_insere', function($request, $response, $args){
 		$id_dispositivo = 			$request->getParam('id_dispositivo');
 		$valor_icos_fundo = 		$request->getParam('valor_icos_fundo');
@@ -1125,8 +1360,6 @@
 
 	});
 
-	$app->run();
-/*	
 	<!--
 				body{
 					font-size:16px;
