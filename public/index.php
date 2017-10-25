@@ -432,7 +432,7 @@
 			<th>Id_dispositivo</th> 
 			<th>Icos Fundo</th>
 			<th>Icos Superfície</th>
-			<th>Ultrassonico</th>
+			<th>Ultrassônico</th>
 			<th>Latitude</th>
 			<th>Longitude</th>
 			<th>Elevação</th>
@@ -463,6 +463,9 @@
 						$contC +=1;
 					}
 					
+					$formattedLat = number_format($row->latitude, 2);
+					$formattedLon = number_format($row->longitude, 2);
+					
 					echo "
 					<tr>
 						<td>$row->id_leitura</td>
@@ -470,8 +473,8 @@
 						<td>$row->valor_icos_fundo</td>
 						<td>$row->valor_icos_superficie</td>
 						<td>$row->valor_ultrassonico</td>
-						<td>$row->latitude</td>
-						<td>$row->longitude</td>
+						<td>$formattedLat</td>
+						<td>$formattedLon</td>
 						<td>$row->elevacao</td>
 						<td>$row->data_hora</td>
 						<td>$nivel</td>
@@ -492,7 +495,7 @@
 		<br>
 		';
 
-		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+		echo "<br>D1:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 
 		//Começo do código para segundo dispositivo
 
@@ -512,7 +515,7 @@
 			<th>Id_dispositivo</th> 
 			<th>Icos Fundo</th>
 			<th>Icos Superfície</th>
-			<th>Ultrassonico</th>
+			<th>Ultrassônico</th>
 			<th>Latitude</th>
 			<th>Longitude</th>
 			<th>Elevação</th>
@@ -543,6 +546,9 @@
 						$contC +=1;
 					}
 					
+					$formattedLat = number_format($row->latitude, 2);
+					$formattedLon = number_format($row->longitude, 2);
+					
 					echo "
 					<tr>
 						<td>$row->id_leitura</td>
@@ -550,14 +556,14 @@
 						<td>$row->valor_icos_fundo</td>
 						<td>$row->valor_icos_superficie</td>
 						<td>$row->valor_ultrassonico</td>
-						<td>$row->latitude</td>
-						<td>$row->longitude</td>
+						<td>$formattedLat</td>
+						<td>$formattedLon</td>
 						<td>$row->elevacao</td>
 						<td>$row->data_hora</td>
 						<td>$nivel</td>
 					</tr>
 					";
-						
+						   
 				}
 			}
 			else {
@@ -571,8 +577,8 @@
 		</table>
 		<br>
 		';
- 
-		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		echo "<br>D2:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 
 		echo '
 		<br>
@@ -646,7 +652,21 @@
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>Moppe - Insere</title>
 			<style>
+			table, td, th {
+				border: 1px solid black;
+			}
 
+			table {
+				width: 50%;
+			}
+			
+			th {
+				text-align: center;
+			}
+
+			td {
+				text-align: center;
+			}
 			</style>
 			</head>
 		<body>
@@ -684,6 +704,23 @@
 			echo '<br>Erro SQL<br>';	 
 		}
 
+		echo '
+		<h3>Dispositivo 1:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassônico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
 		$contN = 0;
 		$contI = 0; 
 		$contC = 0;
@@ -705,7 +742,25 @@
 						$nivel = "Crítico";
 						$contC +=1;
 					}
-					  
+					
+					$formattedLat = number_format($row->latitude, 2);
+					$formattedLon = number_format($row->longitude, 2);
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$formattedLat</td>
+						<td>$formattedLon</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						   
 				}
 			}
 			else {
@@ -714,6 +769,11 @@
 		}else{
 			echo "Erro SQL";
 		}
+
+		echo '
+		</table>
+		<br>
+		';
 
 		echo "<br>D1:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 
@@ -764,6 +824,23 @@
 			echo '<br>Erro SQL<br>';	 
 		}
 		
+		echo '
+		<h3>Dispositivo 2:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassônico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
 		$contN = 0;
 		$contI = 0; 
 		$contC = 0;
@@ -785,7 +862,25 @@
 						$nivel = "Crítico";
 						$contC +=1;
 					}
-									
+					
+					$formattedLat = number_format($row->latitude, 2);
+					$formattedLon = number_format($row->longitude, 2);
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$formattedLat</td>
+						<td>$formattedLon</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						   
 				}
 			}
 			else {
@@ -794,6 +889,11 @@
 		}else{
 			echo "Erro SQL";
 		}
+
+		echo '
+		</table>
+		<br>
+		';
 
 		echo "<br>D2:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 		
