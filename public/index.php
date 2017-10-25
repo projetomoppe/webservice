@@ -229,7 +229,7 @@
 
 		if ($contI>7 && $nivelAnterior1!="i"){
 			$nivelAnterior1 = "i";
-			$response = sendMessage('Dispositivo 1 - Nível internediário');
+			$response = sendMessage('Dispositivo 1 - Nível intermediário');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
 			
@@ -346,7 +346,7 @@
 
 		if ($contI>7 && $nivelAnterior2!="i"){
 			$nivelAnterior2 = "i";
-			$response = sendMessage('Dispositivo 2 - Nível internediário');
+			$response = sendMessage('Dispositivo 2 - Nível intermediário');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
 			
