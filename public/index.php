@@ -1,4 +1,5 @@
 <?php
+
 	ini_set('display_errors',1);
 	ini_set('display_startup_erros',1);
 	error_reporting(E_ALL);
@@ -71,7 +72,7 @@
 		<h2>Moppe - Webservice</h2>
 		<h3>Digite:</h3> 
 		<ul style="list-style-type:disc">
-			<li>/get_dados na url para acessar os dados do banco.</li> <br>
+			<li>/get_historico na url para acessar os dados do banco.</li> <br>
 			<li>/get_insere/{id_dispositivo}/{valor_icos_fundo}/{valor_icos_superficie}/{valor_ultrassonico}/{latitude_sinal}/{latitude_inteiro}/{latitude_decimal}/{longitude_sinal}/{longitude_inteiro}/{longitude_decimal}/{elevacao}/{dia}/{mes}/{ano}/{hora}/{minuto}/{segundo} na url para inserir uma nova leitura no banco. Lembre de trocar os campos com {} para as variáveis que vc quer.</li>
 			<ul>
 				<li> ex: get_insere/1/0/1/30.578/1/20/15156156/1/40/4898489/25/2017/09/22/09/14/12 </li>
@@ -95,293 +96,12 @@
 		';
 
 	});
-	
-
-	$app->get('/get_notificacao', function($request, $response, $args){
-
-		header("Refresh: 5");
-		
-		session_start();		
-		
-		echo '
-		<!DOCTYPE html>
-		<html>
-		<head>
-			<meta charset="UTF-8">
-			<meta name="description" content="API que transmite dados sobre os niveis de um rio">
-			<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
-			<meta name="author" content="Edson Boldrini">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Moppe - Leituras</title>
-			<style>
-			table, td, th {
-				border: 1px solid black;
-			}
-
-			table {
-				width: 50%;
-			}
-			
-			th {
-				text-align: center;
-			}
-
-			td {
-				text-align: center;
-			}
-			</style>
-			</head>
-		<body>
-		';
-		
-		echo "<h2>Moppe - Leituras</h2>";
-		
-		try{
-			$response = getConnection();
-			
-			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 10");	
-		}catch(PDOException $e){
-			echo '<br>Erro SQL<br>';	 
-		}
-
-		echo '
-		<h3>Dispositivo 1:</h3>
-		<table>
-		<tr>
-			<th>id_leitura</th>
-			<th>Id_dispositivo</th> 
-			<th>Icos Fundo</th>
-			<th>Icos Superfície</th>
-			<th>Ultrassonico</th>
-			<th>Latitude</th>
-			<th>Longitude</th>
-			<th>Elevação</th>
-			<th>Data/Hora</th>
-			<th>Nível</th>
-		</tr>
-		';
-
-		$contN = 0;
-		$contI = 0; 
-		$contC = 0;
-
-		if($response->execute()){	
-			if($response->rowCount() > 0){
-				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
-						$nivel = "Normal";
-						$contN +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
-						$nivel = "Interm.";
-						$contI +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
-						$nivel = "Crítico";
-						$contC +=1;
-					}
-					
-					echo "
-					<tr>
-						<td>$row->id_leitura</td>
-						<td>$row->id_dispositivo</td> 
-						<td>$row->valor_icos_fundo</td>
-						<td>$row->valor_icos_superficie</td>
-						<td>$row->valor_ultrassonico</td>
-						<td>$row->latitude</td>
-						<td>$row->longitude</td>
-						<td>$row->elevacao</td>
-						<td>$row->data_hora</td>
-						<td>$nivel</td>
-					</tr>
-					";
-						   
-				}
-			}
-			else {
-				echo "Sem leituras para esse dispositivo";
-			}
-		}else{
-			echo "Erro SQL";
-		}
-
-		echo '
-		</table>
-		<br>
-		';
-
-		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
-
-		$nivelAnterior1 = $_SESSION['nivelAnterior1'];
-		
-		if ($contN>7 && $nivelAnterior1!="n"){
-			$nivelAnterior1 = "n";
-			$response = sendMessage('Dispositivo 1 - Nível normal');
-			$return["allresponses"] = $response;
-			$return = json_encode( $return);
-			
-			print("\n\nJSON received:\n");
-			print($return);
-			print("\n");
-		}
-
-		if ($contI>7 && $nivelAnterior1!="i"){
-			$nivelAnterior1 = "i";
-			$response = sendMessage('Dispositivo 1 - Nível intermediário');
-			$return["allresponses"] = $response;
-			$return = json_encode( $return);
-			
-			print("\n\nJSON received:\n");
-			print($return);
-			print("\n");
-		}
-
-		if ($contC>7 && $nivelAnterior1!="c"){
-			$nivelAnterior1 = "c";
-			$response = sendMessage('Dispositivo 1 - Nível crítico');
-			$return["allresponses"] = $response;
-			$return = json_encode( $return);
-			
-			print("\n\nJSON received:\n");
-			print($return);
-			print("\n");
-		}
-
-		$_SESSION['nivelAnterior1'] = $nivelAnterior1;
-
-		//Começo do código para segundo dispositivo
-
-		try{
-			$response = getConnection();
-			
-			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 10");	
-		}catch(PDOException $e){
-			echo '<br>Erro SQL<br>';	 
-		}
-		
-		echo '
-		<h3>Dispositivo 2:</h3>
-		<table>
-		<tr>
-			<th>id_leitura</th>
-			<th>Id_dispositivo</th> 
-			<th>Icos Fundo</th>
-			<th>Icos Superfície</th>
-			<th>Ultrassonico</th>
-			<th>Latitude</th>
-			<th>Longitude</th>
-			<th>Elevação</th>
-			<th>Data/Hora</th>
-			<th>Nível</th>
-		</tr>
-		';
-
-		$contN = 0;
-		$contI = 0; 
-		$contC = 0;
-
-		if($response->execute()){	
-			if($response->rowCount() > 0){
-				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
-						$nivel = "Normal";
-						$contN +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
-						$nivel = "Interm.";
-						$contI +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
-						$nivel = "Crítico";
-						$contC +=1;
-					}
-					
-					echo "
-					<tr>
-						<td>$row->id_leitura</td>
-						<td>$row->id_dispositivo</td> 
-						<td>$row->valor_icos_fundo</td>
-						<td>$row->valor_icos_superficie</td>
-						<td>$row->valor_ultrassonico</td>
-						<td>$row->latitude</td>
-						<td>$row->longitude</td>
-						<td>$row->elevacao</td>
-						<td>$row->data_hora</td>
-						<td>$nivel</td>
-					</tr>
-					";
-						
-				}
-			}
-			else {
-				echo "Sem leituras para esse dispositivo";
-			}
-		}else{
-			echo "Erro SQL";
-		}
-
-		echo '
-		</table>
-		<br>
-		';
- 
-		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
-
-		$nivelAnterior2 = $_SESSION['nivelAnterior2'];
-
-		if ($contN>7 && $nivelAnterior2!="n"){
-			$nivelAnterior2 = "n";
-			$response = sendMessage('Dispositivo 2 - Nível normal');
-			$return["allresponses"] = $response;
-			$return = json_encode( $return);
-			
-			print("\n\nJSON received:\n");
-			print($return);
-			print("\n");
-		}
-
-		if ($contI>7 && $nivelAnterior2!="i"){
-			$nivelAnterior2 = "i";
-			$response = sendMessage('Dispositivo 2 - Nível intermediário');
-			$return["allresponses"] = $response;
-			$return = json_encode( $return);
-			
-			print("\n\nJSON received:\n");
-			print($return);
-			print("\n");
-		}
-
-		if ($contC>7 && $nivelAnterior2!="c"){
-			$nivelAnterior2 = "c";
-			$response = sendMessage('Dispositivo 2 - Nível crítico');
-			$return["allresponses"] = $response;
-			$return = json_encode( $return);
-			
-			print("\n\nJSON received:\n");
-			print($return);
-			print("\n");
-		}
-
-		$_SESSION['nivelAnterior2'] = $nivelAnterior2;
-
-		echo '
-		<br>
-		</body>
-		</html>
-		';
-
-		
-	});
 
 	$app->get('/get_historico', function($request, $response, $args){
 
 		header("Refresh: 5");
 		
-		session_start();		
+		//session_start();		
 		
 		echo '
 		<!DOCTYPE html>
@@ -392,7 +112,7 @@
 			<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
 			<meta name="author" content="Edson Boldrini">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Moppe - Leituras</title>
+			<title>Moppe - Histórico</title>
 			<style>
 			table, td, th {
 				border: 1px solid black;
@@ -428,13 +148,13 @@
 		<h3>Dispositivo 1:</h3>
 		<table>
 		<tr>
-			<th>id_leitura</th>
-			<th>Id_dispositivo</th> 
-			<th>Icos Fundo</th>
-			<th>Icos Superfície</th>
-			<th>Ultrassônico</th>
-			<th>Latitude</th>
-			<th>Longitude</th>
+			<th>Leitura</th>
+			<th>Dispositivo</th> 
+			<th>I. Baixo</th>
+			<th>I. Alto</th>
+			<th>Ultras.</th>
+			<th>Lat.</th>
+			<th>Long.</th>
 			<th>Elevação</th>
 			<th>Data/Hora</th>
 			<th>Nível</th>
@@ -465,6 +185,9 @@
 					
 					$formattedLat = number_format($row->latitude, 2);
 					$formattedLon = number_format($row->longitude, 2);
+					list ($data, $tempo) = explode(' ', $row->data_hora);
+					list ($ano, $mes, $dia) = explode('-', $data);
+		            list ($hora, $minuto, $segundo) = explode(':', $tempo);
 					
 					echo "
 					<tr>
@@ -476,7 +199,7 @@
 						<td>$formattedLat</td>
 						<td>$formattedLon</td>
 						<td>$row->elevacao</td>
-						<td>$row->data_hora</td>
+						<td>$dia/$mes/$ano<br>$tempo</td>
 						<td>$nivel</td>
 					</tr>
 					";
@@ -495,7 +218,7 @@
 		<br>
 		';
 
-		echo "<br>D1:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+		echo "D1:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 
 		//Começo do código para segundo dispositivo
 
@@ -511,13 +234,13 @@
 		<h3>Dispositivo 2:</h3>
 		<table>
 		<tr>
-			<th>id_leitura</th>
-			<th>Id_dispositivo</th> 
-			<th>Icos Fundo</th>
-			<th>Icos Superfície</th>
-			<th>Ultrassônico</th>
-			<th>Latitude</th>
-			<th>Longitude</th>
+			<th>Leitura</th>
+			<th>Dispositivo</th> 
+			<th>I. Baixo</th>
+			<th>I. Alto</th>
+			<th>Ultras.</th>
+			<th>Lat.</th>
+			<th>Long.</th>
 			<th>Elevação</th>
 			<th>Data/Hora</th>
 			<th>Nível</th>
@@ -548,6 +271,9 @@
 					
 					$formattedLat = number_format($row->latitude, 2);
 					$formattedLon = number_format($row->longitude, 2);
+					list ($data, $tempo) = explode(' ', $row->data_hora);
+					list ($ano, $mes, $dia) = explode('-', $data);
+		            list ($hora, $minuto, $segundo) = explode(':', $tempo);
 					
 					echo "
 					<tr>
@@ -559,7 +285,7 @@
 						<td>$formattedLat</td>
 						<td>$formattedLon</td>
 						<td>$row->elevacao</td>
-						<td>$row->data_hora</td>
+						<td>$dia/$mes/$ano<br>$tempo</td>
 						<td>$nivel</td>
 					</tr>
 					";
@@ -578,7 +304,7 @@
 		<br>
 		';
 
-		echo "<br>D2:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+		echo "D2:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 
 		echo '
 		<br>
@@ -593,7 +319,7 @@
 		
 		//header("Refresh: 5; url = /moppe-ws/public/index.php/get_notificacao");
 
-		session_start();
+		//session_start();
 
 		$id_dispositivo = 			$request->getAttribute('id_dispositivo');
 		$valor_icos_fundo = 		$request->getAttribute('valor_icos_fundo');
@@ -610,6 +336,7 @@
 		$mes = 						$request->getAttribute('mes');
 		$ano = 						$request->getAttribute('ano');
 		$hora = 					$request->getAttribute('hora');
+		$hora = 					$hora-2; //Adaptação ao fuso horário (horário de verão GMT-2)
 		$minuto = 					$request->getAttribute('minuto');
 		$segundo = 					$request->getAttribute('segundo');
 
@@ -745,6 +472,9 @@
 					
 					$formattedLat = number_format($row->latitude, 2);
 					$formattedLon = number_format($row->longitude, 2);
+					list ($data, $tempo) = explode(' ', $row->data_hora);
+					list ($ano, $mes, $dia) = explode('-', $data);
+		            list ($hora, $minuto, $segundo) = explode(':', $tempo);
 					
 					echo "
 					<tr>
@@ -756,7 +486,7 @@
 						<td>$formattedLat</td>
 						<td>$formattedLon</td>
 						<td>$row->elevacao</td>
-						<td>$row->data_hora</td>
+						<td>$dia/$mes/$ano $tempo</td>
 						<td>$nivel</td>
 					</tr>
 					";
@@ -775,12 +505,45 @@
 		<br>
 		';
 
-		echo "<br>D1:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
-
-		$nivelAnterior1 = $_SESSION['nivelAnterior1'];
+		echo "D1:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+        
+        try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM estados WHERE id_dispositivo=1 ORDER BY id_estado desc limit 1");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
 		
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+				    $nivelAnterior1 = $row->estado_anterior;
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+		
+		//echo "$nivelAnterior1";
+        
 		if ($contN>7 && $nivelAnterior1!="n"){
-			$nivelAnterior1 = "n";
+		    
+			try{
+    			$response = getConnection();
+    			
+    			$response = $response->query("INSERT INTO estados (id_dispositivo, estado_anterior) VALUES ('$id_dispositivo','n');");	
+    		
+    			echo 'Código SQL:<br>';
+    			//echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');<br>";	
+    			echo '<br><b>Estado adicionado!</b><br>';	
+    		}	
+    		catch(PDOException $e){
+    			echo '<br><b>Estado não adicionado!</b><br>';	 
+    		}
 			$response = sendMessage('Dispositivo 1 - Nível normal');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
@@ -791,7 +554,18 @@
 		}
 
 		if ($contI>7 && $nivelAnterior1!="i"){
-			$nivelAnterior1 = "i";
+			try{
+    			$response = getConnection();
+    			
+    			$response = $response->query("INSERT INTO estados (id_dispositivo, estado_anterior) VALUES ('$id_dispositivo','i');");	
+    		
+    			echo 'Código SQL:<br>';
+    			//echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');<br>";	
+    			echo '<br><b>Estado adicionado!</b><br>';	
+    		}	
+    		catch(PDOException $e){
+    			echo '<br><b>Estado não adicionado!</b><br>';	 
+    		}
 			$response = sendMessage('Dispositivo 1 - Nível intermediário');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
@@ -802,7 +576,18 @@
 		}
 
 		if ($contC>7 && $nivelAnterior1!="c"){
-			$nivelAnterior1 = "c";
+			try{
+    			$response = getConnection();
+    			
+    			$response = $response->query("INSERT INTO estados (id_dispositivo, estado_anterior) VALUES ('$id_dispositivo','c');");	
+    		
+    			echo 'Código SQL:<br>';
+    			//echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');<br>";	
+    			echo '<br><b>Estado adicionado!</b><br>';	
+    		}	
+    		catch(PDOException $e){
+    			echo '<br><b>Estado não adicionado!</b><br>';	 
+    		}
 			$response = sendMessage('Dispositivo 1 - Nível crítico');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
@@ -811,8 +596,6 @@
 			print($return);
 			print("\n");
 		}
-
-		$_SESSION['nivelAnterior1'] = $nivelAnterior1;
 
 		//Começo do código para segundo dispositivo
 
@@ -863,8 +646,11 @@
 						$contC +=1;
 					}
 					
-					$formattedLat = number_format($row->latitude, 2);
+			    	$formattedLat = number_format($row->latitude, 2);
 					$formattedLon = number_format($row->longitude, 2);
+					list ($data, $tempo) = explode(' ', $row->data_hora);
+					list ($ano, $mes, $dia) = explode('-', $data);
+		            list ($hora, $minuto, $segundo) = explode(':', $tempo);
 					
 					echo "
 					<tr>
@@ -876,7 +662,7 @@
 						<td>$formattedLat</td>
 						<td>$formattedLon</td>
 						<td>$row->elevacao</td>
-						<td>$row->data_hora</td>
+						<td>$dia/$mes/$ano $tempo</td>
 						<td>$nivel</td>
 					</tr>
 					";
@@ -895,12 +681,44 @@
 		<br>
 		';
 
-		echo "<br>D2:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+		echo "D2:<br><br>Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
 		
-		$nivelAnterior2 = $_SESSION['nivelAnterior2'];
+        try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM estados WHERE id_dispositivo=2 ORDER BY id_estado desc limit 1");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+		
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+				    $nivelAnterior2 = $row->estado_anterior;
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+		
+		//echo "$nivelAnterior2";
 		
 		if ($contN>7 && $nivelAnterior2!="n"){
-			$nivelAnterior2 = "n";
+			try{
+    			$response = getConnection();
+    			
+    			$response = $response->query("INSERT INTO estados (id_dispositivo, estado_anterior) VALUES ('$id_dispositivo','n');");	
+    		
+    			echo 'Código SQL:<br>';
+    			//echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');<br>";	
+    			echo '<br><b>Estado adicionado!</b><br>';	
+    		}	
+    		catch(PDOException $e){
+    			echo '<br><b>Estado não adicionado!</b><br>';	 
+    		}
 			$response = sendMessage('Dispositivo 2 - Nível normal');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
@@ -911,7 +729,18 @@
 		}
 
 		if ($contI>7 && $nivelAnterior2!="i"){
-			$nivelAnterior2 = "i";
+			try{
+    			$response = getConnection();
+    			
+    			$response = $response->query("INSERT INTO estados (id_dispositivo, estado_anterior) VALUES ('$id_dispositivo','i');");	
+    		
+    			echo 'Código SQL:<br>';
+    			//echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');<br>";	
+    			echo '<br><b>Estado adicionado!</b><br>';	
+    		}	
+    		catch(PDOException $e){
+    			echo '<br><b>Estado não adicionado!</b><br>';	 
+    		}
 			$response = sendMessage('Dispositivo 2 - Nível intermediário');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
@@ -922,7 +751,18 @@
 		}
 
 		if ($contC>7 && $nivelAnterior2!="c"){
-			$nivelAnterior2 = "c";
+			try{
+    			$response = getConnection();
+    			
+    			$response = $response->query("INSERT INTO estados (id_dispositivo, estado_anterior) VALUES ('$id_dispositivo','c');");	
+    		
+    			echo 'Código SQL:<br>';
+    			//echo "INSERT INTO leituras (id_dispositivo, valor_icos_fundo, valor_icos_superficie, valor_ultrassonico, latitude, longitude, elevacao, data_hora) VALUES ('$id_dispositivo','$valor_icos_fundo','$valor_icos_superficie','$valor_ultrassonico','$latitude','$longitude','$elevacao','$data_hora');<br>";	
+    			echo '<br><b>Estado adicionado!</b><br>';	
+    		}	
+    		catch(PDOException $e){
+    			echo '<br><b>Estado não adicionado!</b><br>';	 
+    		}
 			$response = sendMessage('Dispositivo 2 - Nível crítico');
 			$return["allresponses"] = $response;
 			$return = json_encode( $return);
@@ -931,9 +771,6 @@
 			print($return);
 			print("\n");
 		}
-
-		$_SESSION['nivelAnterior2'] = $nivelAnterior2;
-
 
 		echo '
 		<br>
@@ -1327,36 +1164,18 @@
 
 	$app->get('/get_estado', function($request, $response, $args){
 	    
-	    try{
+        try{
 			$response = getConnection();
 			
-			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 10");	
+			$response = $response->query("SELECT * FROM estados WHERE id_dispositivo=1 ORDER BY id_estado desc limit 1");	
 		}catch(PDOException $e){
 			echo '<br>Erro SQL<br>';	 
 		}
-
-		$contN = 0;
-		$contI = 0; 
-		$contC = 0;
-
+		
 		if($response->execute()){	
 			if($response->rowCount() > 0){
 				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
-						$nivel = "Normal";
-						$contN +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
-						$nivel = "Interm.";
-						$contI +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
-						$nivel = "Crítico";
-						$contC +=1;
-					}
-					  
+				    $nivelAnterior1 = $row->estado_anterior;
 				}
 			}
 			else {
@@ -1364,20 +1183,6 @@
 			}
 		}else{
 			echo "Erro SQL";
-		}
-
-		//echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
-
-		if ($contN>7){
-			$nivelAnterior1 = "n";
-		}
-
-		if ($contI>7){
-			$nivelAnterior1 = "i";
-		}
-
-		if ($contC>7){
-			$nivelAnterior1 = "c";
 		}
 
 		//Começo do código para segundo dispositivo
@@ -1385,33 +1190,15 @@
 		try{
 			$response = getConnection();
 			
-			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 10");	
+			$response = $response->query("SELECT * FROM estados WHERE id_dispositivo=2 ORDER BY id_estado desc limit 1");	
 		}catch(PDOException $e){
 			echo '<br>Erro SQL<br>';	 
 		}
 		
-		$contN = 0;
-		$contI = 0; 
-		$contC = 0;
-
 		if($response->execute()){	
 			if($response->rowCount() > 0){
 				while($row = $response->fetch(PDO::FETCH_OBJ)){
-					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
-						$nivel = "Normal";
-						$contN +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
-						$nivel = "Interm.";
-						$contI +=1;
-					}
-
-					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
-						$nivel = "Crítico";
-						$contC +=1;
-					}
-									
+				    $nivelAnterior2 = $row->estado_anterior;
 				}
 			}
 			else {
@@ -1419,20 +1206,6 @@
 			}
 		}else{
 			echo "Erro SQL";
-		}
-
-		//echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
-		
-		if ($contN>7){
-			$nivelAnterior2 = "n";
-		}
-
-		if ($contI>7){
-			$nivelAnterior2 = "i";
-		}
-
-		if ($contC>7){
-			$nivelAnterior2 = "c";
 		}
 	    
 		echo '
@@ -1533,6 +1306,10 @@
 		if($nivelAnterior1 == "i" && $nivelAnterior2 =="n")
 			echo '<span style="color:#3CB371"> NORMAL</span>';
 
+		if($nivelAnterior1 == "n" && $nivelAnterior2 =="c")
+			echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
+		if($nivelAnterior1 == "c" && $nivelAnterior2 =="n")
+			echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
 		if($nivelAnterior1 == "i" && $nivelAnterior2 =="i")
 			echo '<span style="color:#FFCC33"> INTERMEDIÁRIO (ALERTA)</span>';
 
@@ -1560,6 +1337,287 @@
 	$app->run();
 
 	/*	
+	
+	$app->get('/get_notificacao', function($request, $response, $args){
+
+		header("Refresh: 5");
+		
+		session_start();		
+		
+		echo '
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="UTF-8">
+			<meta name="description" content="API que transmite dados sobre os niveis de um rio">
+			<meta name="keywords" content="Moppe, monitoramento de sensores, arduino, webservice, php, banco de dados, mysql, ionic, slim, apache, onesignal">
+			<meta name="author" content="Edson Boldrini">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Moppe - Leituras</title>
+			<style>
+			table, td, th {
+				border: 1px solid black;
+			}
+
+			table {
+				width: 50%;
+			}
+			
+			th {
+				text-align: center;
+			}
+
+			td {
+				text-align: center;
+			}
+			</style>
+			</head>
+		<body>
+		';
+		
+		echo "<h2>Moppe - Leituras</h2>";
+		
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=1 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+
+		echo '
+		<h3>Dispositivo 1:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassonico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$row->latitude</td>
+						<td>$row->longitude</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						   
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		echo '
+		</table>
+		<br>
+		';
+
+		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		$nivelAnterior1 = $_SESSION['nivelAnterior1'];
+		
+		if ($contN>7 && $nivelAnterior1!="n"){
+			$nivelAnterior1 = "n";
+			$response = sendMessage('Dispositivo 1 - Nível normal');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contI>7 && $nivelAnterior1!="i"){
+			$nivelAnterior1 = "i";
+			$response = sendMessage('Dispositivo 1 - Nível intermediário');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contC>7 && $nivelAnterior1!="c"){
+			$nivelAnterior1 = "c";
+			$response = sendMessage('Dispositivo 1 - Nível crítico');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		$_SESSION['nivelAnterior1'] = $nivelAnterior1;
+
+		//Começo do código para segundo dispositivo
+
+		try{
+			$response = getConnection();
+			
+			$response = $response->query("SELECT * FROM leituras WHERE id_dispositivo=2 ORDER BY id_leitura desc limit 10");	
+		}catch(PDOException $e){
+			echo '<br>Erro SQL<br>';	 
+		}
+		
+		echo '
+		<h3>Dispositivo 2:</h3>
+		<table>
+		<tr>
+			<th>id_leitura</th>
+			<th>Id_dispositivo</th> 
+			<th>Icos Fundo</th>
+			<th>Icos Superfície</th>
+			<th>Ultrassonico</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+			<th>Elevação</th>
+			<th>Data/Hora</th>
+			<th>Nível</th>
+		</tr>
+		';
+
+		$contN = 0;
+		$contI = 0; 
+		$contC = 0;
+
+		if($response->execute()){	
+			if($response->rowCount() > 0){
+				while($row = $response->fetch(PDO::FETCH_OBJ)){
+					if ($row->valor_icos_fundo == 1 && $row->valor_icos_superficie == 0){
+						$nivel = "Normal";
+						$contN +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 0){
+						$nivel = "Interm.";
+						$contI +=1;
+					}
+
+					if ($row->valor_icos_fundo == 0 && $row->valor_icos_superficie == 1){
+						$nivel = "Crítico";
+						$contC +=1;
+					}
+					
+					echo "
+					<tr>
+						<td>$row->id_leitura</td>
+						<td>$row->id_dispositivo</td> 
+						<td>$row->valor_icos_fundo</td>
+						<td>$row->valor_icos_superficie</td>
+						<td>$row->valor_ultrassonico</td>
+						<td>$row->latitude</td>
+						<td>$row->longitude</td>
+						<td>$row->elevacao</td>
+						<td>$row->data_hora</td>
+						<td>$nivel</td>
+					</tr>
+					";
+						
+				}
+			}
+			else {
+				echo "Sem leituras para esse dispositivo";
+			}
+		}else{
+			echo "Erro SQL";
+		}
+
+		echo '
+		</table>
+		<br>
+		';
+ 
+		echo "Contador normal = $contN<br>Contador intermediário = $contI<br>Contador crítico = $contC<br>";
+
+		$nivelAnterior2 = $_SESSION['nivelAnterior2'];
+
+		if ($contN>7 && $nivelAnterior2!="n"){
+			$nivelAnterior2 = "n";
+			$response = sendMessage('Dispositivo 2 - Nível normal');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contI>7 && $nivelAnterior2!="i"){
+			$nivelAnterior2 = "i";
+			$response = sendMessage('Dispositivo 2 - Nível intermediário');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		if ($contC>7 && $nivelAnterior2!="c"){
+			$nivelAnterior2 = "c";
+			$response = sendMessage('Dispositivo 2 - Nível crítico');
+			$return["allresponses"] = $response;
+			$return = json_encode( $return);
+			
+			print("\n\nJSON received:\n");
+			print($return);
+			print("\n");
+		}
+
+		$_SESSION['nivelAnterior2'] = $nivelAnterior2;
+
+		echo '
+		<br>
+		</body>
+		</html>
+		';
+
+	});
+	
+	
 	$app->post('/post_insere', function($request, $response, $args){
 		$id_dispositivo = 			$request->getParam('id_dispositivo');
 		$valor_icos_fundo = 		$request->getParam('valor_icos_fundo');
